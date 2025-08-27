@@ -21,15 +21,25 @@ public class TodoAppController(DbConn dbConn) : ControllerBase
     public async Task<IActionResult> CreateTaskAsync([FromBody] Tasks task)
     {
         var createTask = new CreateTask(dbConn);
-        var creation = await createTask.CreateTaskAsync(task);
-        return Ok(creation);
+        var create = await createTask.CreateTaskAsync(task);
+        return Ok(create);
     }
+
+    [HttpPost("update")]
+    public async Task<IActionResult> UpdateTaskAsync([FromBody] Tasks task)
+    {
+        var updateTask = new UpdateTask(dbConn);
+        var update = await updateTask.UpdateTaskAsync(task);
+        return Ok(update);
+    }
+
+   
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteTaskAsync([FromRoute]int id)
     {
         var deleteTask = new DeleteTask(dbConn);
-        var deletion = await deleteTask.DeleteTaskAsync(id);
-        return Ok(deletion);
+        var delete = await deleteTask.DeleteTaskAsync(id);
+        return Ok(delete);
     }
 }

@@ -23,7 +23,9 @@ public class GetTasks(DbConn dbConn)
              Id = reader.GetInt32(reader.GetOrdinal("id")),
              Title = reader.GetString(reader.GetOrdinal("title")),
              Description = reader.GetString(reader.GetOrdinal("description")),
-             Status = (Status)reader.GetInt32(reader.GetOrdinal("status"))
+             Status = (Status)reader.GetInt32(reader.GetOrdinal("status")),
+             Priority = (Priority)reader.GetInt32(reader.GetOrdinal("priority")),
+             CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at")),
          };
          tasks.Add(task);
      }
