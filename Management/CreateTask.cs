@@ -19,7 +19,7 @@ public class CreateTask(DbConn dbConn)
         command.Parameters.AddWithValue("@priority", (int)task.Priority);
         var reader = await command.ExecuteReaderAsync();
         await reader.ReadAsync();
-        int id = reader.GetInt32(reader.GetOrdinal("id"));
+        var id = reader.GetInt32(reader.GetOrdinal("id"));
         
         await  dbConn.Connection.CloseAsync();
         return id;
