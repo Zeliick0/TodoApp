@@ -1,9 +1,9 @@
-namespace TodoApp.TodoItem;
+namespace TodoApp.Model;
 
-public class TodoItem
+public class Tasks
 {
     public int  Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public bool IsCompleted { get; set; }
+    public Status Status { get; set; }
 }
