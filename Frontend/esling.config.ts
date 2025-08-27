@@ -5,7 +5,7 @@ import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
 
 export default defineConfigWithVueTs(
   {
-    name: "com.yap.yap-client.congig.eslint.recommended",
+    name: "com.yap.yap-client.config.eslint.recommended",
     files: ["**/*.{ts,mts,tsx,vue,js}"],
     rules: {
       "vue/component-definition-name-casing": ["warn", "kebab-case"]
