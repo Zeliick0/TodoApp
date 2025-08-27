@@ -7,7 +7,6 @@ namespace TodoApp.Database;
 public class DbConn : DbContext
 {
     public DbSet<Tasks> Tasks { get; set; }
-    public DbSet<CompletedTasks> CompletedTasks { get; set; }
     public readonly NpgsqlConnection Connection;
 
     public DbConn(IConfiguration configuration)

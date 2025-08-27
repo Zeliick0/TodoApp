@@ -32,9 +32,7 @@ public class TodoAppController(DbConn dbConn) : ControllerBase
         var update = await updateTask.UpdateTaskAsync(task);
         return Ok(update);
     }
-
-   
-
+    
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteTaskAsync([FromRoute]int id)
     {

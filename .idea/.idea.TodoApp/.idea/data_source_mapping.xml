@@ -5,6 +5,6 @@
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/e743a590-4fe0-4012-a2f3-a51e9cf4f442/console_1.sql" value="e743a590-4fe0-4012-a2f3-a51e9cf4f442" />
     <file url="file://$PROJECT_DIR$/Management/CreateTask.cs" value="e743a590-4fe0-4012-a2f3-a51e9cf4f442" />
     <file url="file://$PROJECT_DIR$/Management/DeleteTask.cs" value="e743a590-4fe0-4012-a2f3-a51e9cf4f442" />
-    <file url="file://$PROJECT_DIR$/Management/Update.cs" value="e743a590-4fe0-4012-a2f3-a51e9cf4f442" />
+    <file url="file://$PROJECT_DIR$/Management/UpdateTask.cs" value="e743a590-4fe0-4012-a2f3-a51e9cf4f442" />
   </component>
 </project>
