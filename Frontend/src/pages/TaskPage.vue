@@ -32,7 +32,7 @@
             @select="openDrawer"
             />
     </div>
-
+    <!-- Switching to drawer to display task actions menu -->
     <TaskDrawer
       :task="selectedTask"
       :visible="drawerVisible"

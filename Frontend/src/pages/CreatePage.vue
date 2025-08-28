@@ -24,7 +24,7 @@
           <option :value="2">High</option>
         </select>
       </div>
-      <!-- Submit -->
+      <!-- Submit button -->
       <button type="submit" class="btn btn-primary w-full">Create Task</button>
     </form>
   </div>

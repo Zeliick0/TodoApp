@@ -1,7 +1,7 @@
 <template>
   <div class="card w-full max-w-[95%] mx-auto bg-base-100 shadow-md mb-2">
     <div class="card-body p-4">
-      <!-- Title + Priority-->
+      <!-- Card attributes -->
       <div class="flex justify-between items-center">
         <h2
           class="card-title text-lg font-bold cursor-pointer hover:underline flex items-center"
@@ -15,13 +15,14 @@
         </span>
       </div>
 
-      <!-- Pending start button -->
+      <!-- Button for starting the task -->
       <div v-if="task.status === Status.Pending" class="mt-2">
         <button class="btn btn-sm btn-accent" @click="$emit('start', task)">
           Start
         </button>
       </div>
 
+      <!-- Button for completing the task -->
       <div v-if="task.status === Status.InProgress" class="mt-2">
         <button class="btn btn-sm btn-success" @click="$emit('complete', task)">
           Complete
@@ -58,7 +59,6 @@ export default defineComponent({
     const priorityText = computed(
       () => priorityMap[props.task.priority]?.text ?? "Not specified"
     );
-
 
     return {
       priorityColor,

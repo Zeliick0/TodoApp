@@ -35,7 +35,7 @@
               <option :value="1">Medium</option>
               <option :value="2">High</option>
             </select>
-            <span class="text-sm text-gray-500">{{ editableTask!.status === 0 ? 'Pending' : editableTask!.status === 1 ? 'In Progress' : 'Completed' }}</span>
+             <span class="text-sm text-gray-500">{{ editableTask!.status === 0 ? 'Pending' : editableTask!.status === 1 ? 'In Progress' : 'Completed' }}</span>
           </div>
 
           <!-- Description -->
