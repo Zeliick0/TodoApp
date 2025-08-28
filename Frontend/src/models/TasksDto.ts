@@ -1,13 +1,16 @@
-import { Status, Priority } from "./TaskInterface";
-import type Tasks from "./TaskInterface";
 
-export default class TasksDto implements Tasks {
-    constructor (
-        public id: number,
-        public title: string,
-        public description: string,
-        public status: Status,
-        public priority: Priority,
-        public createdAt: string,
-    ) {}
+export default class TaskDto {
+  id?: number;
+  title: string;
+  description: string;
+  status: number;
+  priority: number;
+
+  constructor(task: any) {
+    this.id = task.id ?? task.Id;
+    this.title = task.title ?? task.Title;
+    this.description = task.description ?? task.Description;
+    this.status = task.status ?? task.Status;
+    this.priority = task.priority ?? task.Priority;
+  }
 }

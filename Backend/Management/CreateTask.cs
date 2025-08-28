@@ -6,7 +6,7 @@ namespace TodoApp.Management;
 
 public class CreateTask(DbConn dbConn)
 {
-    private const string AddQuery = "INSERT INTO tasks (title, description, status, priority) VALUES (@title, @description,  @status, @priority) RETURNING id;";
+    private const string AddQuery = "INSERT INTO tasks (title, description, status, priority) VALUES (@title, @description, @status, @priority) RETURNING id;";
 
     public async Task<int> CreateTaskAsync(Tasks task)
     {
@@ -15,7 +15,7 @@ public class CreateTask(DbConn dbConn)
         
         command.Parameters.AddWithValue("@title", task.Title);
         command.Parameters.AddWithValue("@description", task.Description);
-        command.Parameters.AddWithValue("@status", (int)task.Status);
+        command.Parameters.AddWithValue("@status", 0);
         command.Parameters.AddWithValue("@priority", (int)task.Priority);
         var reader = await command.ExecuteReaderAsync();
         await reader.ReadAsync();

@@ -1,47 +1,70 @@
 <template>
-  <div class="card w-80 bg-base-100 shadow-sm">
+  <div class="card w-full max-w-[95%] mx-auto bg-base-100 shadow-md mb-2">
     <div class="card-body p-4">
-        
-      <h2 class="card-title text-lg font-bold">{{ title }}</h2>
+      <!-- Title + Priority-->
+      <div class="flex justify-between items-center">
+        <h2
+          class="card-title text-lg font-bold cursor-pointer hover:underline flex items-center"
+          @click="$emit('select', task)"
+        >
+          <span>{{ task.title }}</span>
+        </h2>
 
-      <span
-        :class="['badge badge-outline mt-2', priorityColor]"
-      >
-        {{ priority }}
-      </span>
-
-      <div class="card-actions justify-end mt-4">
-        <button class="btn btn-sm btn-primary">Edit</button>
-        <button class="btn btn-sm btn-error">Delete</button>
+        <span :class="['badge font-bold', priorityColor]">
+          {{ priorityText }}
+        </span>
       </div>
+
+      <!-- Pending start button -->
+      <div v-if="task.status === Status.Pending" class="mt-2">
+        <button class="btn btn-sm btn-accent" @click="$emit('start', task)">
+          Start
+        </button>
+      </div>
+
+      <div v-if="task.status === Status.InProgress" class="mt-2">
+        <button class="btn btn-sm btn-success" @click="$emit('complete', task)">
+          Complete
+        </button>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed } from "vue";
+import { Priority, Status} from "../models/TaskInterface.ts";
+import type Tasks from "../models/TaskInterface.ts";
 
 export default defineComponent({
   name: "TaskCard",
   props: {
-    title: { type: String, required: true },
-    priority: { type: String, required: true },
+    task: { type: Object as () => Tasks, required: true },
   },
+  emits: ["start", "select", "complete"],
   setup(props) {
-    const priorityColor = computed(() => {
-      switch (props.priority.toLowerCase()) {
-        case "high":
-          return "badge-error";
-        case "medium":
-          return "badge-warning";
-        case "low":
-          return "badge-success";
-        default:
-          return "badge-neutral";
-      }
-    });
 
-    return { priorityColor };
+    const priorityMap = {
+      [Priority.Low]: { text: "Low", color: "badge-success" },
+      [Priority.Medium]: { text: "Medium", color: "badge-warning" },
+      [Priority.High]: { text: "High", color: "badge-error" },
+    };
+
+    const priorityColor = computed(
+      () => priorityMap[props.task.priority]?.color ?? "badge-neutral"
+    );
+
+    const priorityText = computed(
+      () => priorityMap[props.task.priority]?.text ?? "Not specified"
+    );
+
+
+    return {
+      priorityColor,
+      priorityText,
+      Status,
+    };
   },
 });
 </script>

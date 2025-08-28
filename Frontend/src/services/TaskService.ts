@@ -22,7 +22,7 @@ export default class TaskService {
     }
 
     public static async deleteTask(id: number): Promise<boolean> {
-        const url= `${TasksApi.task.deletion}/${id}`;
+        const url= TasksApi.task.deletion(id);
         return REST.delete(url);
     }
 }
