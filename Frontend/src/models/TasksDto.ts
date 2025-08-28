@@ -8,5 +8,6 @@ export default class TasksDto implements Tasks {
         public description: string,
         public status: Status,
         public priority: Priority,
+        public createdAt: string,
     ) {}
 }

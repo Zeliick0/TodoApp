@@ -16,4 +16,5 @@ export default interface Tasks {
     description: string;
     status: Status;
     priority: Priority;
+    createdAt: string;
 }
