@@ -6,32 +6,48 @@ namespace TodoApp.Management;
 
 public class UpdateTask(DbConn dbConn)
 {
-    private const string UpdateQuery = "UPDATE tasks SET title = @title, description = @description, status = @status, priority = @priority WHERE id = @id";
-    private const string CheckQuery = "SELECT status FROM TASKS where id = @id";
+    private const string UpdateQuery = @"
+        UPDATE tasks 
+        SET title = @title, description = @description, status = @status, priority = @priority 
+        WHERE id = @id";
+
+    private const string CheckQuery = "SELECT status FROM tasks WHERE id = @id";
+
     public async Task<bool> UpdateTaskAsync(Tasks task)
     {
         await dbConn.Connection.OpenAsync();
-        var command = new NpgsqlCommand(UpdateQuery, dbConn.Connection);
-        var check = new NpgsqlCommand(CheckQuery, dbConn.Connection);
 
-        var reader = await check.ExecuteReaderAsync();
-        await reader.ReadAsync();
-        var status = reader.GetInt32(reader.GetOrdinal("status"));
+        try
+        {
+            using var checkCmd = new NpgsqlCommand(CheckQuery, dbConn.Connection);
+            checkCmd.Parameters.AddWithValue("@id", task.Id);
 
-        if (status == 2)
+            var statusObj = await checkCmd.ExecuteScalarAsync();
+            if (statusObj == null)
+            {
+                return false;
+            }
+
+            var currentStatus = Convert.ToInt32(statusObj);
+
+            if (currentStatus == 2)
+            {
+                return false;
+            }
+
+            await using var updateCmd = new NpgsqlCommand(UpdateQuery, dbConn.Connection);
+            updateCmd.Parameters.AddWithValue("@id", task.Id);
+            updateCmd.Parameters.AddWithValue("@title", task.Title);
+            updateCmd.Parameters.AddWithValue("@description", task.Description);
+            updateCmd.Parameters.AddWithValue("@status", (int)task.Status);
+            updateCmd.Parameters.AddWithValue("@priority", (int)task.Priority);
+
+            var rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+            return rowsAffected > 0;
+        }
+        finally
         {
             await dbConn.Connection.CloseAsync();
-            return false;
         }
-       
-        command.Parameters.AddWithValue("@id", task.Id);
-        command.Parameters.AddWithValue("@title", task.Title);
-        command.Parameters.AddWithValue("@description", task.Description);
-        command.Parameters.AddWithValue("@status", (int)task.Status);
-        command.Parameters.AddWithValue("@priority", (int)task.Priority);
-        await command.ExecuteNonQueryAsync();
-        
-        await dbConn.Connection.CloseAsync();
-        return true;
     }
 }
