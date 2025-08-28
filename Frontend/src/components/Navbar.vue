@@ -12,7 +12,7 @@
       <router-link to="/create" class="btn btn-ghost">New task</router-link>
     </div>
 
-    <div class="flex-none gap-2">
+    <div class="flex-none gap-6">
       <label class="swap swap-rotate">
         <input type="checkbox" class="theme-controller" @change="toggleTheme"/>
 
