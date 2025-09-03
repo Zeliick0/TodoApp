@@ -1,4 +1,3 @@
-
 export default class TaskDto {
   id?: number;
   title: string;
