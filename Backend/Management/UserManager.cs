@@ -70,14 +70,14 @@ public class UserManager(DbConn dbConn)
         return result;
     }
     
-    public async Task<bool> RegisterUserAsync(AuthDto authDto)
+    public async Task<AuthResultDto?> RegisterUserAsync(AuthDto authDto)
     {
         await dbConn.Connection.OpenAsync();
         var checkCmd = new NpgsqlCommand(QueryConstants.Users.GetByUsernameQuery, dbConn.Connection);
         var existingUser = await checkCmd.ExecuteScalarAsync();
         if (existingUser != null)
         {
-            return false;
+            return null;
         }
         
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(authDto.Password); 
@@ -86,8 +86,27 @@ public class UserManager(DbConn dbConn)
         command.Parameters.AddWithValue("@username", authDto.Username);
         command.Parameters.AddWithValue("@password_hash", hashedPassword);
         
+        var reader = await command.ExecuteReaderAsync();
+        await reader.ReadAsync();
+        var id  = reader.GetInt32(reader.GetOrdinal("id"));
+
+        var user = new User
+        {
+            Id = id,
+            Username = authDto.Username,
+            PasswordHash = hashedPassword,
+        };
+        
+        
+        
         await dbConn.Connection.CloseAsync();
-        return true;
+        var token = GenerateJwt(user);
+
+        return new AuthResultDto
+        {
+            Token = token,
+            User = user,
+        };
     }
 
     public async Task<AuthResultDto?> LoginUserAsync(AuthDto authDto)
@@ -99,20 +118,41 @@ public class UserManager(DbConn dbConn)
         
         await dbConn.Connection.OpenAsync();
         var checkCmd = new NpgsqlCommand(QueryConstants.Users.GetByUsernameQuery, dbConn.Connection);
-        var existingUser = await checkCmd.ExecuteScalarAsync();
-        if (existingUser == null)
+        var existingUser = await checkCmd.ExecuteReaderAsync();
+        if (!await existingUser.ReadAsync())
         {
             return null;
         }
 
+        var user = new User
+        {
+            Id = existingUser.GetInt32(existingUser.GetOrdinal("id")),
+            Username = existingUser.GetString(existingUser.GetOrdinal("username")),
+            PasswordHash = existingUser.GetString(existingUser.GetOrdinal("password_hash")),
+        };
         
+        bool isCorrectPassword =  BCrypt.Net.BCrypt.Verify(authDto.Password, user.PasswordHash);
+
+        if (!isCorrectPassword)
+        {
+            return null;
+        }
+        
+        var token =  GenerateJwt(user);
+        if (string.IsNullOrEmpty(token))
+        {
+            return null;
+        }
+        
+        await dbConn.Connection.CloseAsync();
         return new AuthResultDto
         {
         Token = token,
+        User = user,
         };
     }
 
-    private Task<string> GenerateJWT(User user)
+    private static string GenerateJwt(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         byte[] key = Encoding.UTF8.GetBytes("meow"!);
@@ -127,12 +167,13 @@ public class UserManager(DbConn dbConn)
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(2),
+            Expires = DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-            Issuer = "",
-            Audience = "",
+            Issuer = "meow",
+            Audience = "meow",
         };
         
-        
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }
