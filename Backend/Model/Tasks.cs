@@ -1,6 +1,6 @@
 namespace TodoApp.Model;
 
-public class Tasks
+public class Task
 {
     public int  Id { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -10,4 +10,6 @@ public class Tasks
     public Priority Priority { get; set; }
     
     public DateTime CreatedAt { get; set; }
+    
+    public int UserId { get; set; }
 }

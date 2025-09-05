@@ -14,21 +14,6 @@ namespace TodoApp.Management;
 
 public class UserManager(DbConn dbConn)
 {
-    public async Task<int> CreateUserAsync(User user)
-    {
-        await dbConn.Connection.OpenAsync();
-        var command = new NpgsqlCommand(QueryConstants.Users.CreateQuery, dbConn.Connection);
-        
-        command.Parameters.AddWithValue("@username", user.Username);
-        command.Parameters.AddWithValue("@password_hash", user.PasswordHash);
-        var reader = await command.ExecuteReaderAsync();
-        await reader.ReadAsync();
-        var id =  reader.GetInt32(reader.GetOrdinal("id"));
-        
-        await dbConn.Connection.CloseAsync();
-        return id;
-    }
-
     public async Task<bool> DeleteUserAsync(int id)
     {
         await dbConn.Connection.OpenAsync();
@@ -97,8 +82,6 @@ public class UserManager(DbConn dbConn)
             PasswordHash = hashedPassword,
         };
         
-        
-        
         await dbConn.Connection.CloseAsync();
         var token = GenerateJwt(user);
 
@@ -151,11 +134,12 @@ public class UserManager(DbConn dbConn)
         User = user,
         };
     }
+    
 
     private static string GenerateJwt(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        byte[] key = Encoding.UTF8.GetBytes("meow"!);
+        var key = Encoding.UTF8.GetBytes("MyAngelDamselette!123"!);
 
         var claims = new List<Claim>()
         {
@@ -167,7 +151,7 @@ public class UserManager(DbConn dbConn)
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddDays(1),
+            Expires = DateTime.UtcNow.AddHours(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             Issuer = "meow",
             Audience = "meow",

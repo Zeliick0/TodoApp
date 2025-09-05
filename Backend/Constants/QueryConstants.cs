@@ -4,9 +4,9 @@ public static class QueryConstants
 {
     public static class Tasks
     {
-        public const string AddQuery = "INSERT INTO tasks (title, description, status, priority) VALUES (@title, @description, @status, @priority) RETURNING id;";
+        public const string AddQuery = "INSERT INTO tasks (title, description, status, priority, user_id) VALUES (@title, @description, @status, @priority, @user_id) RETURNING id;";
         public const string DeleteQuery = "DELETE FROM tasks WHERE id = @id";
-        public const string GetQuery = "SELECT * FROM tasks";
+        public const string GetQuery = "SELECT * FROM tasks WHERE user_id = @user_id";
         public const string CheckQuery = "SELECT status FROM tasks WHERE id = @id";
         public const string UpdateQuery = @" UPDATE tasks SET title = @title, description = @description, status = @status, priority = @priority WHERE id = @id";
     }

@@ -1,13 +1,15 @@
+using Microsoft.Data.SqlClient;
 using TodoApp.Database;
 using Npgsql;
 using TodoApp.Model;
 using TodoApp.Constants;
+using Task = TodoApp.Model.Task;
 
 namespace TodoApp.Management;
 
 public class TaskManager(DbConn dbConn)
 {
-    public async Task<int> CreateTaskAsync(Tasks task)
+    public async Task<int> CreateTaskAsync(Task task)
     {
         await dbConn.Connection.OpenAsync();
         var command = new NpgsqlCommand(QueryConstants.Tasks.AddQuery, dbConn.Connection);
@@ -35,17 +37,19 @@ public class TaskManager(DbConn dbConn)
         return true;
     }
 
-    public async Task<List<Tasks>> GetTasksAsync()
+    public async Task<List<Task>> GetTasksByUserAsync(int userId)
     {
-        var tasks = new List<Tasks>();
+        var tasks = new List<Task>();
 
         await dbConn.Connection.OpenAsync();
         var command = new NpgsqlCommand(QueryConstants.Tasks.GetQuery, dbConn.Connection);
+        command.Parameters.AddWithValue("@user_id", userId);
+        
         var reader = await command.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())
         {
-            var task = new Tasks
+            var task = new Task
             {
                 Id = reader.GetInt32(reader.GetOrdinal("id")),
                 Title = reader.GetString(reader.GetOrdinal("title")),
@@ -53,6 +57,7 @@ public class TaskManager(DbConn dbConn)
                 Status = (Status)reader.GetInt32(reader.GetOrdinal("status")),
                 Priority = (Priority)reader.GetInt32(reader.GetOrdinal("priority")),
                 CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at")),
+                UserId = reader.GetInt32(reader.GetOrdinal("user_id")),
             };
             tasks.Add(task);
         }
@@ -61,7 +66,7 @@ public class TaskManager(DbConn dbConn)
         return tasks;
     }
 
-    public async Task<bool> UpdateTaskAsync(Tasks task)
+    public async Task<bool> UpdateTaskAsync(Task task)
     {
         await dbConn.Connection.OpenAsync();
 
