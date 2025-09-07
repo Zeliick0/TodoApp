@@ -6,19 +6,19 @@ namespace TodoApp.Helpers;
 
 public static class ClaimsHelper
 {
-    public static int GetUserId(this ClaimsPrincipal user)
+    public static int? GetUserId(this ClaimsPrincipal claimsPrincipal)
     {
-        var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+        var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
         if (userIdClaim == null)
         {
-            throw new Exception("Claim not found");
+            return null;
         }
 
         if (!int.TryParse(userIdClaim.Value, out var userId))
         {
-            throw new Exception("Invalid user id");
+            return null;
         }
-
+        
         return userId;
     }
 }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.DataTransferObjects;
-using TodoApp.Management;
+using TodoApp.Managers;
 using TodoApp.Model;
 using Task = System.Threading.Tasks.Task;
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using TodoApp.Database;
 using TodoApp.Helpers;
-using TodoApp.Management;
+using TodoApp.Managers;
 using TodoApp.Model;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 using Task = TodoApp.Model.Task;
@@ -21,28 +21,40 @@ public class TodoController(TaskManager taskManager) : ControllerBase
         var userId = User.GetUserId();
         if (userId == null) return Unauthorized();
         
-        var task = await taskManager.GetTasksByUserAsync(userId);
+        var task = await taskManager.GetTasksByUserAsync(userId.Value);
         return Ok(task);
     }
-
+    
     [HttpPost("create")]
+    [Authorize]
     public async Task<IActionResult> CreateTaskAsync([FromBody] Task task)
     {
-        var create = await taskManager.CreateTaskAsync(task);
+        var userId = User.GetUserId();
+        if (userId == null) return Unauthorized();
+        
+        var create = await taskManager.CreateTaskAsync(task, userId.Value);
         return Ok(create);
     }
-
+    
     [HttpPost("update")]
+    [Authorize]
     public async Task<IActionResult> UpdateTaskAsync([FromBody] Task task)
     {
-        var update = await taskManager.UpdateTaskAsync(task);
+        var userId = User.GetUserId();
+        if (userId == null) return Unauthorized();
+        
+        var update = await taskManager.UpdateTaskAsync(task, userId.Value);
         return Ok(update);
     }
     
     [HttpDelete("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> DeleteTaskAsync([FromRoute]int id)
     {
-        var delete = await taskManager.DeleteTaskAsync(id);
+        var userId = User.GetUserId();
+        if (userId == null) return Unauthorized();
+        
+        var delete = await taskManager.DeleteTaskAsync(id, userId.Value);
         return Ok(delete);
     }
 }

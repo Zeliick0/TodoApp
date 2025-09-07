@@ -10,7 +10,7 @@ using TodoApp.DataTransferObjects;
 using BCrypt.Net;
 using Microsoft.IdentityModel.Tokens;
 
-namespace TodoApp.Management;
+namespace TodoApp.Managers;
 
 public class UserManager(DbConn dbConn)
 {

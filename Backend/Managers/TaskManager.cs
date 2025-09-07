@@ -5,11 +5,11 @@ using TodoApp.Model;
 using TodoApp.Constants;
 using Task = TodoApp.Model.Task;
 
-namespace TodoApp.Management;
+namespace TodoApp.Managers;
 
 public class TaskManager(DbConn dbConn)
 {
-    public async Task<int> CreateTaskAsync(Task task)
+    public async Task<int> CreateTaskAsync(Task task, int userId)
     {
         await dbConn.Connection.OpenAsync();
         var command = new NpgsqlCommand(QueryConstants.Tasks.AddQuery, dbConn.Connection);
@@ -18,6 +18,7 @@ public class TaskManager(DbConn dbConn)
         command.Parameters.AddWithValue("@description", task.Description);
         command.Parameters.AddWithValue("@status", 0);
         command.Parameters.AddWithValue("@priority", (int)task.Priority);
+        command.Parameters.AddWithValue("@user_id", userId);
         var reader = await command.ExecuteReaderAsync();
         await reader.ReadAsync();
         var id = reader.GetInt32(reader.GetOrdinal("id"));
@@ -26,12 +27,14 @@ public class TaskManager(DbConn dbConn)
         return id;
     }
     
-    public async Task<bool> DeleteTaskAsync(int id)
+    public async Task<bool> DeleteTaskAsync(int id, int userId)
     {
         await dbConn.Connection.OpenAsync();
         var command = new NpgsqlCommand(QueryConstants.Tasks.DeleteQuery, dbConn.Connection);
         
         command.Parameters.AddWithValue("@id", id);
+        command.Parameters.AddWithValue("@user_id", userId);
+        
         await  command.ExecuteNonQueryAsync();
         await dbConn.Connection.CloseAsync();
         return true;
@@ -66,34 +69,34 @@ public class TaskManager(DbConn dbConn)
         return tasks;
     }
 
-    public async Task<bool> UpdateTaskAsync(Task task)
+    public async Task<bool> UpdateTaskAsync(Task task, int userId)
     {
         await dbConn.Connection.OpenAsync();
 
         try
         {
-            await using var checkCmd = new NpgsqlCommand(QueryConstants.Tasks.CheckQuery, dbConn.Connection);
-            checkCmd.Parameters.AddWithValue("@id", task.Id);
-
-            var statusObj = await checkCmd.ExecuteScalarAsync();
-            if (statusObj == null)
+            var checkStatusCmd = new NpgsqlCommand(QueryConstants.Tasks.StatusQuery, dbConn.Connection);
+            checkStatusCmd.Parameters.AddWithValue("@id", task.Id);
+            
+            var status = await checkStatusCmd.ExecuteScalarAsync();
+            if (status == null)
             {
                 return false;
             }
-
-            var currentStatus = Convert.ToInt32(statusObj);
-
+            
+            var currentStatus = Convert.ToInt32(status);
             if (currentStatus == 2)
             {
                 return false;
             }
-
+            
             await using var updateCmd = new NpgsqlCommand(QueryConstants.Tasks.UpdateQuery, dbConn.Connection);
             updateCmd.Parameters.AddWithValue("@id", task.Id);
             updateCmd.Parameters.AddWithValue("@title", task.Title);
             updateCmd.Parameters.AddWithValue("@description", task.Description);
             updateCmd.Parameters.AddWithValue("@status", (int)task.Status);
             updateCmd.Parameters.AddWithValue("@priority", (int)task.Priority);
+            updateCmd.Parameters.AddWithValue("@user_id", userId);
 
             var rowsAffected = await updateCmd.ExecuteNonQueryAsync();
             return rowsAffected > 0;
