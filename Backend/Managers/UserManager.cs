@@ -41,25 +41,32 @@ public class UserManager(DbConn dbConn)
         return user;
     }
 
-    public async Task<bool> CheckUserByUsernameAsync(string username)
+    public async Task<User?> CheckUserByUsernameAsync(string username)
     {
         await dbConn.Connection.OpenAsync();
         var command = new NpgsqlCommand(QueryConstants.Users.GetByUsernameQuery, dbConn.Connection);
-        
         command.Parameters.AddWithValue("@username", username);
+        
         var reader = await command.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            var user = new User
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("id")),
+                Username = reader.GetString(reader.GetOrdinal("username")),
+                PasswordHash = reader.GetString(reader.GetOrdinal("password_hash")),
+            };
+
+            return user;
+        }
         
-        var result =  await reader.ReadAsync();
-        await dbConn.Connection.CloseAsync();
-        
-        return result;
+        return null;
     }
     
     public async Task<AuthResultDto?> RegisterUserAsync(AuthDto authDto)
     {
         await dbConn.Connection.OpenAsync();
-        var checkCmd = new NpgsqlCommand(QueryConstants.Users.GetByUsernameQuery, dbConn.Connection);
-        var existingUser = await checkCmd.ExecuteScalarAsync();
+        var existingUser = await CheckUserByUsernameAsync(authDto.Username);
         if (existingUser != null)
         {
             return null;
@@ -99,29 +106,19 @@ public class UserManager(DbConn dbConn)
             return null;
         }
         
-        await dbConn.Connection.OpenAsync();
-        var checkCmd = new NpgsqlCommand(QueryConstants.Users.GetByUsernameQuery, dbConn.Connection);
-        var existingUser = await checkCmd.ExecuteReaderAsync();
-        if (!await existingUser.ReadAsync())
-        {
+        var user = await CheckUserByUsernameAsync(authDto.Username);
+        if (user == null)
+        { 
             return null;
         }
-
-        var user = new User
-        {
-            Id = existingUser.GetInt32(existingUser.GetOrdinal("id")),
-            Username = existingUser.GetString(existingUser.GetOrdinal("username")),
-            PasswordHash = existingUser.GetString(existingUser.GetOrdinal("password_hash")),
-        };
         
         bool isCorrectPassword =  BCrypt.Net.BCrypt.Verify(authDto.Password, user.PasswordHash);
-
         if (!isCorrectPassword)
         {
             return null;
         }
         
-        var token =  GenerateJwt(user);
+        var token = GenerateJwt(user);
         if (string.IsNullOrEmpty(token))
         {
             return null;
@@ -130,8 +127,8 @@ public class UserManager(DbConn dbConn)
         await dbConn.Connection.CloseAsync();
         return new AuthResultDto
         {
-        Token = token,
-        User = user,
+            Token = token,
+            User = user,
         };
     }
     
@@ -139,7 +136,7 @@ public class UserManager(DbConn dbConn)
     private static string GenerateJwt(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes("MyAngelDamselette!123"!);
+        var key = "MyAngelDamselette!123"u8.ToArray();
 
         var claims = new List<Claim>()
         {
