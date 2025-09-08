@@ -10,6 +10,7 @@
       <router-link to="/" class="btn btn-ghost">Home</router-link>
       <router-link to="/tasks" class="btn btn-ghost">Tasks</router-link>
       <router-link to="/create" class="btn btn-ghost">New task</router-link>
+      <router-link to="/login" class="btn btn-ghost">Login</router-link>
     </div>
 
     <div class="flex-none gap-6">

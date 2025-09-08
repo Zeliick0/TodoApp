@@ -1,16 +1,25 @@
 const base: string = "http://localhost:5093/TodoApp";
 
-const list:     string = `${base}/list`;
-const create:   string = `${base}/create`;
-const update:   string = `${base}/update`;
-const deletion =  (id: number) => `${base}/${id}`;
+const list:     string = `${base}/tasks/list`;
+const create:   string = `${base}/tasks/create`;
+const update:   string = `${base}/tasks/update`;
+const taskDeletion =  (id: number) => `${base}/tasks/${id}`;
+
+const login:    string = `${base}/users/login`;
+const register: string = `${base}/users/register`
+const logout:   string = `${base}/users/logout`
+const userDeletion = (id: number) => `${base}/users/${id}`;
 
 export default {
-    task: {
+    todo: {
         base,
         list,
         create,
         update,
-        deletion
+        taskDeletion,
+        login,
+        register,
+        logout,
+        userDeletion
     }
 }
